@@ -3,6 +3,7 @@
 // (https://dummyjson.com/products) солино.
 
 // TODO 5.1: jsonDecode-ийг ашиглахын тулд 'dart:convert'-ийг import хий.
+import 'dart:convert';
 import 'order_status.dart';
 import 'product.dart';
 
@@ -38,14 +39,34 @@ class ProductService {
   /// [shouldFail] true бол `Exception('Сүлжээний алдаа')` шиднэ.
   Future<List<Product>> fetchProducts() async {
     // TODO 5.1
-    throw UnimplementedError('TODO 5.1');
+    await Future.delayed(delay);
+
+    if (shouldFail) {
+      throw Exception('Сүлжээний алдаа');
+    }
+
+    final decoded = jsonDecode(sampleProductsJson) as List;
+
+    return decoded
+        .map((json) => Product.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   /// 5.2 Гарчигт [query] агуулсан барааг хайна (том, жижиг үсэг ялгахгүй).
   /// Хоосон query бол бүх барааг буцаана. fetchProducts()-ийг await хий.
   Future<List<Product>> searchProducts(String query) async {
     // TODO 5.2
-    throw UnimplementedError('TODO 5.2');
+    final products = await fetchProducts();
+
+    if (query.trim().isEmpty) {
+      return products;
+    }
+
+    final searchQuery = query.toLowerCase();
+
+    return products
+        .where((product) => product.title.toLowerCase().contains(searchQuery))
+        .toList();
   }
 }
 
@@ -55,7 +76,13 @@ class ProductService {
 /// try / catch ашигла.
 Future<String> loadProductsMessage(ProductService service) async {
   // TODO 5.3
-  throw UnimplementedError('TODO 5.3');
+  try {
+    final products = await service.fetchProducts();
+
+    return 'Ачааллаа: ${products.length} бараа';
+  } catch (e) {
+    return 'Алдаа: $e';
+  }
 }
 
 /// БОНУС B1 — Захиалгын явцыг Stream-ээр дамжуулна.
@@ -68,5 +95,18 @@ Stream<OrderStatus> trackOrder(
   Duration step = const Duration(milliseconds: 200),
 }) async* {
   // TODO B1
-  throw UnimplementedError('TODO B1');
+  var current = from;
+
+  while (true) {
+    yield current;
+
+    final nextStatus = current.next;
+
+    if (nextStatus == null) {
+      break;
+    }
+
+    await Future.delayed(step);
+    current = nextStatus;
+  }
 }

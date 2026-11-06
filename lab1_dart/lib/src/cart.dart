@@ -23,7 +23,7 @@ class CartItem {
   /// 3.1 Мөрийн дүн = хөнгөлөлттэй үнэ × тоо ширхэг.
   double get subtotal {
     // TODO 3.1
-    throw UnimplementedError('TODO 3.1');
+    return product.discountedPrice * quantity;
   }
 }
 
@@ -39,13 +39,14 @@ class Cart {
   /// 3.2 Сагсанд байгаа нийт ширхэг.
   int get totalQuantity {
     // TODO 3.2: fold ашигла.
-    throw UnimplementedError('TODO 3.2');
+    return _items.values.fold(0, (sum, item) => sum + item.quantity);
   }
 
   /// 3.3 Нийт дүн, 2 оронтой бутархай хүртэл тоймлосон.
   double get totalPrice {
     // TODO 3.3
-    throw UnimplementedError('TODO 3.3');
+    final total = _items.values.fold(0.0, (sum, item) => sum + item.subtotal);
+    return (total * 100).round() / 100;
   }
 
   /// 3.4 Бараа нэмэх.
@@ -55,14 +56,40 @@ class Cart {
   ///   шидэж, сагсыг өөрчлөхгүй.
   void add(Product product, {int quantity = 1}) {
     // TODO 3.4
-    throw UnimplementedError('TODO 3.4');
+    if (quantity <= 0) {
+      throw ArgumentError('Quantity must be greater than 0');
+    }
+
+    final currentItem = _items[product.id];
+    final currentQuantity = currentItem?.quantity ?? 0;
+
+    final newQuantity = currentQuantity + quantity;
+
+    if (newQuantity > product.stock) {
+      throw OutOfStockException(product, newQuantity);
+    }
+
+    _items[product.id] = CartItem(product, newQuantity);
   }
 
   /// 3.5 Тоог 1-ээр хасна; 0 болвол мөрийг устгана.
   /// Сагсанд байхгүй бараа бол юу ч хийхгүй.
   void decrease(int productId) {
     // TODO 3.5
-    throw UnimplementedError('TODO 3.5');
+    final currentItem = _items[productId];
+
+    if (currentItem == null) {
+      return;
+    }
+
+    if (currentItem.quantity == 1) {
+      _items.remove(productId);
+    } else {
+      _items[productId] = CartItem(
+        currentItem.product,
+        currentItem.quantity - 1,
+      );
+    }
   }
 
   void remove(int productId) => _items.remove(productId);

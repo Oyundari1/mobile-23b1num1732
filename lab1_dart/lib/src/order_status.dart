@@ -15,14 +15,20 @@ enum OrderStatus {
   /// 4.1 Дараагийн төлөв: pending → paid → shipped → delivered.
   /// delivered, cancelled бол null (дараагийн төлөв байхгүй).
   /// switch expression ашигла — default/_ бүү хэрэглэ.
-  OrderStatus? get next {
-    // TODO 4.1
-    throw UnimplementedError('TODO 4.1');
-  }
+  OrderStatus? get next => switch (this) {
+        OrderStatus.pending => OrderStatus.paid,
+        OrderStatus.paid => OrderStatus.shipped,
+        OrderStatus.shipped => OrderStatus.delivered,
+        OrderStatus.delivered => null,
+        OrderStatus.cancelled => null,
+      };
 
   /// 4.2 Зөвхөн pending, paid үед цуцалж болно.
-  bool get canCancel {
-    // TODO 4.2
-    throw UnimplementedError('TODO 4.2');
-  }
+  bool get canCancel => switch (this) {
+        OrderStatus.pending => true,
+        OrderStatus.paid => true,
+        OrderStatus.shipped => false,
+        OrderStatus.delivered => false,
+        OrderStatus.cancelled => false,
+      };
 }

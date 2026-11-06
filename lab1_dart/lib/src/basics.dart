@@ -10,7 +10,7 @@
 String describeStudent(String name, {int? age, String? major}) {
   // TODO 1.1: age, major нь null байж болно. ! оператор бүү ашигла.
   if (age == null && major == null) {
-    return name;
+    return '$name';
   } else if (age != null && major == null) {
     return '$name ($age)';
   } else if (age == null && major != null) {
